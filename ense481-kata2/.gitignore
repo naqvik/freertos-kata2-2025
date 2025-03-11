@@ -1,0 +1,7 @@
+# ignore emacs backup files
+*~
+
+/Listings/
+/Objects/
+/*.uvguix.*
+/kata2.uvoptx

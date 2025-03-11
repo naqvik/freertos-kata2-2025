@@ -1,0 +1,16 @@
+# -*- mode: org; org-src-preserve-indentation: t; -*-
+#+startup: indent overview
+#+options: toc:nil
+#+latex_header: \setlength{\voffset}{-0.9in}
+# #+latex_header: \setlength{\topmargin}{5pt}
+#+latex_header: \setlength{\textheight}{1.2\textheight}
+#+title: FreeRTOS in Keil, a Kata
+#+author: K. Naqvi
+#+date: [2025-03-11 Tue]
+
+Here we'll set up a simple application to run
+- on f103rb
+- using Keil, armclang
+- will add FreeRTOS later
+
+*** starting with nothing
