@@ -60,6 +60,12 @@
 /* Hook function related definitions */
 #define configUSE_MALLOC_FAILED_HOOK 0
 
+/* Override the names for SVC, PendSV, and SysTick */
+
+#define vPortSVCHandler      SVC_Handler
+#define xPortPendSVHandler   PendSV_Handler
+#define xPortSysTickHandler  SysTick_Handler
+
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES       0
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
