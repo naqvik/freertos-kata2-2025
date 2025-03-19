@@ -284,4 +284,47 @@ This means that this system with an *empty* main uses 716+252+0=968
 bytes of flash, and 1752 bytes of RAM (plus other RAM entities like
 stack usage)
 
+** start using freertos features: tasks
+Make the body of main into a task and call =xTaskCreate= on that task,
+without starting the scheduler.
+- extract contents of main(), place in a function with this signature
+  : void blinkPA5(void * blah);
+- replace body of main()
+#+begin_src C++
+void blinkPA5(void * blah) {
+    // turn on clock for GPIOA
+    ,*((uint32_t volatile *)0x40021018) |= 4;
+
+    // configure PA5 to be output, push-pull, 50MHz
+    ,*((uint32_t volatile *)(0x40010800 + 0)) = 0x44344444;
+
+    while (1) {
+        // turn on PA5 LED
+        ,*((uint32_t volatile *)(0x40010800 + 0xc)) |=  1u<<5;
+        for (int volatile counter = 0; counter < 1000000; ++counter) { }
+
+        // turn off PA5 LED
+        ,*((uint32_t volatile *)(0x40010800 + 0xc)) &= ~(1u<<5);
+        for (int volatile counter = 0; counter < 1000000/2; ++counter) { }
+    }
+}
+int main() {
+    BaseType_t retval = xTaskCreate(
+        blinkPA5,    // task function
+        "my blinky", // task name
+        50,          // stack in words
+        nullptr,     // optional parameter
+        4,           // priority
+        nullptr      // optional out: task handle
+        );
+    configASSERT(retval==pdPASS);
+
+    //blinkPA5(nullptr);  // will not return
+    vTaskStartScheduler();
+
+    // deadloop in case we fall through
+    while (1) {}
+}
+#+end_src
+
 * end sentinal
