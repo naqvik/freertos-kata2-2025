@@ -61,10 +61,12 @@
 #define configUSE_MALLOC_FAILED_HOOK 0
 
 /* Override the names for SVC, PendSV, and SysTick */
-
 #define vPortSVCHandler      SVC_Handler
 #define xPortPendSVHandler   PendSV_Handler
 #define xPortSysTickHandler  SysTick_Handler
+
+#define configASSERT( x ) if( ( x ) == 0 ) \
+    { taskDISABLE_INTERRUPTS(); while (1) {} }
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES       0
