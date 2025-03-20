@@ -58,13 +58,26 @@
 
 */
 
-//int main() {}
+using Reg32 = uint32_t volatile * const;
+
+/** Configure GPIO port, make it hard to do this wrong */
+void gpio_config(GPIO_TypeDef* base, uint32_t pin, uint32_t bits4) {
+    configASSERT(base != nullptr);
+    configASSERT(pin < 16);
+    configASSERT(bits4 < 15);
+
+    Reg32 CR =  (pin >= 8) ? &base->CRH : &base->CRL;
+    pin  = (pin >= 8) ? pin - 8 : pin;
+    *CR &= ~(0xfu << (pin*4));  // zero the nybble
+    *CR |= bits4 << (pin*4);    // assign bits4 to the nybble
+}
+
 void blinkPA5(void * blah) {
     // turn on clock for GPIOA
     *((uint32_t volatile *)0x40021018) |= 4;
 
     // configure PA5 to be output, push-pull, 50MHz
-    *((uint32_t volatile *)(0x40010800 + 0)) = 0x44344444;
+    gpio_config(GPIOA, 5u, 0b0011u);
 
     while (1) {
         // turn on PA5 LED
