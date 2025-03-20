@@ -72,6 +72,17 @@ void gpio_config(GPIO_TypeDef* base, uint32_t pin, uint32_t bits4) {
     *CR |= bits4 << (pin*4);    // assign bits4 to the nybble
 }
 
+void gpio_on_off(GPIO_TypeDef * base, uint32_t pin, bool on) {
+    configASSERT(base != nullptr);
+    configASSERT(pin < 16);
+
+    uint32_t mask = 1u << pin;
+    if (on)
+        base->ODR |= mask;
+    else
+        base->ODR &= ~mask;
+}
+
 void blinkPA5(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
@@ -81,12 +92,10 @@ void blinkPA5(void * blah) {
     gpio_config(GPIOA, 5u, 0b0011u);
 
     while (1) {
-        // turn on PA5 LED
-        *((uint32_t volatile *)(0x40010800 + 0xc)) |=  1u<<5;
+        gpio_on_off(GPIOA, 5u, 1);
         for (int volatile counter = 0; counter < 1000000; ++counter) { }
 
-        // turn off PA5 LED
-        *((uint32_t volatile *)(0x40010800 + 0xc)) &= ~(1u<<5);
+        gpio_on_off(GPIOA, 5u, 0);
         for (int volatile counter = 0; counter < 1000000*4; ++counter) { }
     }
 }
