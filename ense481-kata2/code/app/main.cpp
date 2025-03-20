@@ -74,7 +74,8 @@ void gpio_config(GPIO_TypeDef* base, uint32_t pin, uint32_t bits4) {
 
 void blinkPA5(void * blah) {
     // turn on clock for GPIOA
-    *((uint32_t volatile *)0x40021018) |= 4;
+    RCC->APB2ENR |= 1u<<2;
+    //*((uint32_t volatile *)0x40021018) |= 4;
 
     // configure PA5 to be output, push-pull, 50MHz
     gpio_config(GPIOA, 5u, 0b0011u);
