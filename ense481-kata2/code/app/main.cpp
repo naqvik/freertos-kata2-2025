@@ -93,10 +93,10 @@ void blinkPA5(void * blah) {
 
     while (1) {
         gpio_on_off(GPIOA, 5u, 1);
-        for (int volatile counter = 0; counter < 1000000; ++counter) { }
+        vTaskDelay(400);
 
         gpio_on_off(GPIOA, 5u, 0);
-        for (int volatile counter = 0; counter < 1000000*4; ++counter) { }
+        vTaskDelay(400);
     }
 }
 int main() {
