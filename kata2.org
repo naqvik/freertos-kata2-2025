@@ -445,4 +445,7 @@ Three properties are necessary for a race condition to exist:
 - I've wired up my breadboard so that there's a yellow LED on port
   PA8, also known as pin D7 on the nucleo-f103rb board.
 
+- First thing is to 'refactor' the existing blinkPA5(): what's wrong?
+  Magic numbers: impossible to reuse or even understand this code
+  without the comments.  I'll write code that configures GPIO ports.
 * end sentinal
