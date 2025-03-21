@@ -105,7 +105,6 @@ void gpio_on_off(GPIO_TypeDef * base, uint32_t pin, bool on) {
 void blinkPA5(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
-    //*((uint32_t volatile *)0x40021018) |= 4;
 
     // configure PA5 to be output, push-pull, 50MHz
     gpio_config(GPIOA, 5u, 0b0011u);
@@ -118,10 +117,26 @@ void blinkPA5(void * blah) {
         vTaskDelay(400);
     }
 }
+void blinkPA8(void * blah) {
+    // turn on clock for GPIOA
+    RCC->APB2ENR |= 1u<<2;
+
+    // configure PA5 to be output, push-pull, 50MHz
+    gpio_config(GPIOA, 8u, 0b0011u);
+
+    while (1) {
+        gpio_on_off(GPIOA, 8u, 1);
+        vTaskDelay(500);
+
+        gpio_on_off(GPIOA, 8u, 0);
+        vTaskDelay(500);
+    }
+}
+
 int main() {
     BaseType_t retval = xTaskCreate(
         blinkPA5,    // task function
-        "my blinky", // task name
+        "blink pa5", // task name
         50,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
@@ -129,7 +144,15 @@ int main() {
         );
     configASSERT(retval==pdPASS);
 
-    //blinkPA5(nullptr);  // will not return
+    retval = xTaskCreate(
+        blinkPA8,    // task function
+        "blink pa8", // task name
+        50,          // stack in words
+        nullptr,     // optional parameter
+        4,           // priority
+        nullptr      // optional out: task handle
+        );
+    configASSERT(retval==pdPASS);
 
     vTaskStartScheduler();
         
