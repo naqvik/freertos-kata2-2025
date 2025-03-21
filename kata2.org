@@ -441,4 +441,8 @@ Three properties are necessary for a race condition to exist:
 3. /Change state property/: At least one of the control flows must
    alter the state of the race object.
 
+*** Blinking a LED on port PA8
+- I've wired up my breadboard so that there's a yellow LED on port
+  PA8, also known as pin D7 on the nucleo-f103rb board.
+
 * end sentinal
