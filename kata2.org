@@ -421,4 +421,24 @@ In the above case, I would
 From the Interrupt blog, here is a good article on [[https://interrupt.memfault.com/blog/asserts-in-embedded-systems][Using Asserts in
 Embedded Systems]]
 
+** Add new task, define 'race condition'
+*** Race Condition: defined in Seacord2013, §7.4:
+
+Uncontrolled concurrency can lead to non-deterministic behavior
+(that is a program can exhibit different behavior for the same set
+of inputs).  A /race condition/ occurs in any scenario in which two
+threads can produce different behavior, depending on which thread
+completes first.
+
+Three properties are necessary for a race condition to exist:
+
+1. /Concurrency property/: At least two control flows must be
+   executing concurrently.
+
+2. /Shared object property/: A shared race object must be accessed by
+   both of the concurrent flows.
+
+3. /Change state property/: At least one of the control flows must
+   alter the state of the race object.
+
 * end sentinal
