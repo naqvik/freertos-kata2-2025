@@ -374,4 +374,51 @@ erroneous code like
 This would hopefully be spotted in a code review, and in fact Jacob
 Meyer spotted me making this error, despite my being aware in advance
 of the problem!
+
+** Using assertions
+We talked about assertions in lect16 and watched a couple of related
+videos from M. Samek.  Now I want to add working assertions to this
+project.
+
+FreeRTOS provides an assertion mechanism (used internally) via the
+=configASSERT= macro.  This is described in the FreeRTOS reference
+manual in §7.3 *Constants that start with ``config''* (p329 of
+v10.0.0).  We are free to implement =configASSERT= if, and as, we
+choose.
+
+We might decide against linking our own error handling with that of
+the kernel, and use instead something like the assertion mechanism
+(qassert.h ?) from Miro Samek's QP framework, but I'll go with
+=configASSERT= now and that decision can be changed later.
+
+If I assume the system is connected to a debugger, then it's ok to
+just spinlock.  I can add this macro to =FreeRTOSConfig.h=.
+
+#+begin_src C++
+#define configASSERT( x ) if( ( x ) == 0 ) \
+    { taskDISABLE_INTERRUPTS(); while (1) {} }
+#+end_src
+
+A more flexible technique is to call =vAssertCalled()= as shown.  Then
+do some damage control, or we can store some information about how we
+got there.
+
+#+begin_src C++
+void vAssertCalled( char const *filename, uint32_t line_num) {
+    // damage control
+    // record filename, line number, PC, LR, etc
+    taskDISABLE_INTERRUPTS();
+    while (1) {}  // in a non-debug environment, system reset
+}
+#+end_src
+
+In the above case, I would
+1. In =FreeRTOSConfig.h=, redefine =configASSERT= to call the function
+   =vAssertCalled()= with extra parameters.  Above this, but also in
+   =FreeRTOSConfig.h=, declare =vAssertCalled()=.
+2. Somewhere in my code, /implement/ =vAssertCalled=.
+
+From the Interrupt blog, here is a good article on [[https://interrupt.memfault.com/blog/asserts-in-embedded-systems][Using Asserts in
+Embedded Systems]]
+
 * end sentinal
