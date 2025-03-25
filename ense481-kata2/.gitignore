@@ -8,7 +8,3 @@
 /Objects/
 /*.uvguix.*
 /*.uvoptx
-
-# ignore symlink to freertos: I'm not tracking this
-# and anyway I've made it all read-only
-/code/FreeRTOS-Kernel
