@@ -117,18 +117,25 @@ void blinkPA5(void * blah) {
         vTaskDelay(400);
     }
 }
-void blinkPA8(void * blah) {
+void display(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
 
-    // configure PA5 to be output, push-pull, 50MHz
+    // configure PA8 and PA9 to be output, push-pull, 50MHz
     gpio_config(GPIOA, 8u, 0b0011u);
+    gpio_config(GPIOA, 9u, 0b0011u);
 
     while (1) {
         gpio_on_off(GPIOA, 8u, 1);
         vTaskDelay(500);
 
         gpio_on_off(GPIOA, 8u, 0);
+        vTaskDelay(500);
+
+        gpio_on_off(GPIOA, 9u, 1);
+        vTaskDelay(500);
+
+        gpio_on_off(GPIOA, 9u, 0);
         vTaskDelay(500);
     }
 }
@@ -145,7 +152,7 @@ int main() {
     configASSERT(retval==pdPASS);
 
     retval = xTaskCreate(
-        blinkPA8,    // task function
+        display,    // task function
         "blink pa8", // task name
         50,          // stack in words
         nullptr,     // optional parameter
