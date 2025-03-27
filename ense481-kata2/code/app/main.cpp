@@ -127,6 +127,7 @@ void blinkPA5(void * blah) {
     gpio_config(GPIOA, 5u, 0b0011u);
 
     while (1) {
+        xSemaphoreTake(gl_sequence_tasks_sem, portMAX_DELAY);  // wait
         gpio_on_off(GPIOA, 5u, 1);
         vTaskDelay(100);
 
@@ -147,6 +148,7 @@ void display(void * blah) {
         vTaskDelay(500);
 
         gpio_on_off(GPIOA, 8u, 0);
+        xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkPA5 task
         vTaskDelay(500);
 
         gpio_on_off(GPIOA, 9u, 1);
@@ -158,6 +160,7 @@ void display(void * blah) {
 }
 
 int main() {
+    // initialize tasks
     BaseType_t retval = xTaskCreate(
         blinkPA5,    // task function
         "blink pa5", // task name
@@ -177,6 +180,10 @@ int main() {
         nullptr      // optional out: task handle
         );
     configASSERT(retval==pdPASS);
+
+    // initialize semaphore for sequencing
+    gl_sequence_tasks_sem = xSemaphoreCreateBinary();
+    configASSERT(gl_sequence_tasks_sem != nullptr);
 
     vTaskStartScheduler();
         
