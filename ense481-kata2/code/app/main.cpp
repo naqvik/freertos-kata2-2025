@@ -123,23 +123,23 @@ void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
 
 
 ////////////////////////////////////////////////////////////////
-// Allow hand-off from task blinkPA8 to blinkPA5.  I want the PA8 task
-// to finish its work *before* the PA5 task runs.  This semaphore is
+// Allow hand-off from task display to blinkGrn.  I want the PA8 task
+// to finish its work *before* the Grn task runs.  This semaphore is
 // used to enforce this.  The PA8 task's period is 1000 ms, while
-// the PA5 task's period is 200 ms.  When a falling edge occurs on
-// PA8, the PA5 task is released, runs to completion, then
+// the Grn task's period is 200 ms.  When a falling edge occurs on
+// PA8, the Grn task is released, runs to completion, then
 // blocks until PA8 emits another falling edge.
 //
-//  PA5....................--__................--__.......... etc
+//  Grn....................--__................--__.......... etc
 //  PA8__________----------__________----------__________----  etc
 
 // Blinks LD2 on the nucleo board
-void blinkPA5(void * blah) {
+void blinkGrn(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
 
-    // configure PA5 to be output, push-pull, 50MHz
-    gpio_config(GPIOA, Pin5, 0b0011u);
+    // configure Grn to be output, push-pull, 50MHz
+    gpio_config(GPIOA, Pin9, 0b0011u);
 
     while (1) {
         xSemaphoreTake(gl_sequence_tasks_sem, portMAX_DELAY);  // wait
@@ -163,7 +163,7 @@ void display(void * blah) {
         vTaskDelay(500);
 
         gpio_on_off(GPIOA, Pin8, 0);
-        xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkPA5 task
+        xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkGrn task
         vTaskDelay(500);
 
         // gpio_on_off(GPIOA, 9u, 1);
@@ -177,8 +177,8 @@ void display(void * blah) {
 int main() {
     // initialize tasks
     BaseType_t retval = xTaskCreate(
-        blinkPA5,    // task function
-        "blink pa5", // task name
+        blinkGrn,    // task function
+        "blink Grn", // task name
         50,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
