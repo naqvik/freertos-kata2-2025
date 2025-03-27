@@ -16,6 +16,28 @@
 */
 #include <stdint.h>
 
+// typedef enum pin_tag {
+//     Pin0, Pin1,
+//     Pin2, Pin3,
+//     Pin4, Pin5,
+//     Pin6, Pin7,
+//     Pin8, Pin9,
+//     Pin10, Pin11,
+//     Pin12, Pin13,
+//     Pin14, Pin15,
+// } Pin;
+
+enum Pin {
+    Pin0, Pin1,
+    Pin2, Pin3,
+    Pin4, Pin5,
+    Pin6, Pin7,
+    Pin8, Pin9,
+    Pin10, Pin11,
+    Pin12, Pin13,
+    Pin14, Pin15,
+};
+
 // global objects
 static SemaphoreHandle_t gl_sequence_tasks_sem = nullptr;
 
@@ -84,21 +106,25 @@ static SemaphoreHandle_t gl_sequence_tasks_sem = nullptr;
 using Reg32 = uint32_t volatile * const;
 
 /** Configure GPIO port, make it hard to do this wrong */
-void gpio_config(GPIO_TypeDef* base, uint32_t pin, uint32_t bits4) {
+void gpio_config(GPIO_TypeDef* base, Pin p, uint32_t bits4) {
     configASSERT(base != nullptr);
-    configASSERT(pin < 16);
+    // configASSERT(p < 16);
     configASSERT(bits4 < 15);
 
+    int32_t pin = (int32_t)p;
     Reg32 CR =  (pin >= 8) ? &base->CRH : &base->CRL;
     pin  = (pin >= 8) ? pin - 8 : pin;
     *CR &= ~(0xfu << (pin*4));  // zero the nybble
     *CR |= bits4 << (pin*4);    // assign bits4 to the nybble
 }
 
-void gpio_on_off(GPIO_TypeDef * base, uint32_t pin, bool on) {
-    configASSERT(base != nullptr);
-    configASSERT(pin < 16);
 
+
+void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
+    configASSERT(base != nullptr);
+    // configASSERT(pin < 16);
+
+    int32_t pin = (int32_t)p;
     uint32_t mask = 1u << pin;
     if (on)
         base->ODR |= mask;
@@ -124,14 +150,14 @@ void blinkPA5(void * blah) {
     RCC->APB2ENR |= 1u<<2;
 
     // configure PA5 to be output, push-pull, 50MHz
-    gpio_config(GPIOA, 5u, 0b0011u);
+    gpio_config(GPIOA, Pin5, 0b0011u);
 
     while (1) {
         xSemaphoreTake(gl_sequence_tasks_sem, portMAX_DELAY);  // wait
-        gpio_on_off(GPIOA, 5u, 1);
+        gpio_on_off(GPIOA, Pin9, 1);
         vTaskDelay(100);
 
-        gpio_on_off(GPIOA, 5u, 0);
+        gpio_on_off(GPIOA, Pin9, 0);
         vTaskDelay(100);
     }
 }
@@ -140,22 +166,22 @@ void display(void * blah) {
     RCC->APB2ENR |= 1u<<2;
 
     // configure PA8 and PA9 to be output, push-pull, 50MHz
-    gpio_config(GPIOA, 8u, 0b0011u);
-    gpio_config(GPIOA, 9u, 0b0011u);
+    gpio_config(GPIOA, Pin8, 0b0011u);
+    gpio_config(GPIOA, Pin9, 0b0011u);
 
     while (1) {
-        gpio_on_off(GPIOA, 8u, 1);
+        gpio_on_off(GPIOA, Pin8, 1);
         vTaskDelay(500);
 
-        gpio_on_off(GPIOA, 8u, 0);
+        gpio_on_off(GPIOA, Pin8, 0);
         xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkPA5 task
         vTaskDelay(500);
 
-        gpio_on_off(GPIOA, 9u, 1);
-        vTaskDelay(500);
+        // gpio_on_off(GPIOA, 9u, 1);
+        // vTaskDelay(500);
 
-        gpio_on_off(GPIOA, 9u, 0);
-        vTaskDelay(500);
+        // gpio_on_off(GPIOA, 9u, 0);
+        // vTaskDelay(500);
     }
 }
 
