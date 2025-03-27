@@ -455,4 +455,82 @@ Three properties are necessary for a race condition to exist:
   - =xSemaphoreCreateBinary()=, §4.2
   - =xSemaphoreGive()=, §4.13
   - =xSemaphoreTake()=, §4.16
+
+** lect22: Discuss race condition
+- last lecture we introduce a semaphore to force two tasks to run in a
+  particular sequence. (although there was a bug right at the end, due
+  to me forgetting to *initialize* the semaphore prior to using it).
+
+  The following is a recap of the 'discussion' I alluded to.
+
+- Q: is this system free of race conditions?  Recall the definition of a
+  race condition from Seacord ``Secure Coding in C and C++''
+
+- discuss
+
+- I think two things make this race-free
+
+  - the way the two tasks are *sequenced* using a semaphore
+
+  - AND the fact that the pa5 (fast) task is coded to finish long
+    before task pa8 starts again.
+
+- However this 'safety' is contingent on these facts remaining true.
+  What guarantees do we have for that?
+
+  - if the pa5 tasks acquires more responsibilities as the code
+    evolves it may violate our assuption
+
+  - the problem is that we still have a shared, mutable object
+    (Seacord calls this a ``shared race object''), namely Port A's ODR
+    register.
+
+  - analyze: how exactly will this fail?
+
+- Solutions:
+
+  - Locking solution: protect Port A from concurrent access with a
+    mutex.
+
+    - =xSemaphoreCreateMutex()=, FreeRTOS ref: §4.6
+
+    - =xSemaphoreGive()=, §4.13
+
+    - =xSemaphoreTake()=, §4.16
+
+  - Lock-free solution: use the BSRR (Bit Set/Reset Register) to ensure all
+    access that changes the bits of PortA is *atomic*.  The BSRR
+    allows any bit to be set or reset without touching other bits.
+
+    #+begin_example
+     31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    #+end_example
+
+    To *set* an output pin /x/ (#0-15) write a 1 to bit /x/ of the BSRR.
+
+    To *clear* an output pin /x/ (#0-15) write a 1 to bit /x+16/ of
+    the BSRR.
+
+    So our =gpio_on_off()= function body changes:
+
+    From this:
+
+    #+begin_src c++
+    uint32_t mask = 1u << pin;
+    if (on)
+        base->ODR |= mask;
+    else
+        base->ODR &= ~mask;
+    #+end_src
+
+    To this:
+
+    #+begin_src c++
+    uint32_t mask = on ? 1u << pin : 1u << (pin+16u);
+    base->BSRR |= 1u << pin;
+    #+end_src
+
 * end sentinal
