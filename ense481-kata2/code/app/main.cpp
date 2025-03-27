@@ -114,11 +114,10 @@ void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
     // configASSERT(pin < 16);
 
     int32_t pin = (int32_t)p;
-    uint32_t mask = 1u << pin;
-    if (on)
-        base->ODR |= mask;
-    else
-        base->ODR &= ~mask;
+
+    // change bit state atomically
+    uint32_t mask = on ? 1u << pin : 1u << (pin+16u);
+    base->BSRR |= mask;
 }
 
 
