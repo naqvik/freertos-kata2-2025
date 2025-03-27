@@ -128,10 +128,10 @@ void blinkPA5(void * blah) {
 
     while (1) {
         gpio_on_off(GPIOA, 5u, 1);
-        vTaskDelay(400);
+        vTaskDelay(100);
 
         gpio_on_off(GPIOA, 5u, 0);
-        vTaskDelay(400);
+        vTaskDelay(100);
     }
 }
 void display(void * blah) {
