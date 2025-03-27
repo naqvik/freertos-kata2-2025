@@ -6,6 +6,7 @@
 /* freertos includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 /* HW-specific includes (move to bsp area) */
 #include "stm32f10x.h"
@@ -14,6 +15,9 @@
    BLink the LED, using the lowest-level code possible
 */
 #include <stdint.h>
+
+// global objects
+static SemaphoreHandle_t gl_sequence_tasks_sem = nullptr;
 
 // Where is the green LED?  connected to PB13 or PA5 with a 510 Ohm resistor
 //   It looks like it's actually PA5, based on the note on p66.
@@ -102,6 +106,19 @@ void gpio_on_off(GPIO_TypeDef * base, uint32_t pin, bool on) {
         base->ODR &= ~mask;
 }
 
+
+////////////////////////////////////////////////////////////////
+// Allow hand-off from task blinkPA8 to blinkPA5.  I want the PA8 task
+// to finish its work *before* the PA5 task runs.  This semaphore is
+// used to enforce this.  The PA8 task's period is 1000 ms, while
+// the PA5 task's period is 200 ms.  When a falling edge occurs on
+// PA8, the PA5 task is released, runs to completion, then
+// blocks until PA8 emits another falling edge.
+//
+//  PA5....................--__................--__.......... etc
+//  PA8__________----------__________----------__________----  etc
+
+// Blinks LD2 on the nucleo board
 void blinkPA5(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
