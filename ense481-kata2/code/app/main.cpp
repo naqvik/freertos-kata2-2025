@@ -41,17 +41,6 @@ enum Pin {
 // global objects
 static SemaphoreHandle_t gl_sequence_tasks_sem = nullptr;
 
-// Where is the green LED?  connected to PB13 or PA5 with a 510 Ohm resistor
-//   It looks like it's actually PA5, based on the note on p66.
-//   So we need to put a High/Low on PA5 to turn LD2 On/Off.
-// So we need to use GPIO port A, bit 5
-// RCC block starts at 0x4002 1000
-// APB2ENR is at RCC + 0x18, set bit 2
-// base of GPIOA is 0x4001 0800 (is also CRL)
-// want to set pin 5 of the ODR, so we need to configure pin 5
-//  using CRL register
-// The ODR of GPIOA is at GPIOA base address + 12 (decimal)
-
 /*
 
    Full table of all possible CNF[1:0]MODE[1:0] patterns, and their
