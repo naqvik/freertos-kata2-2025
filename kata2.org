@@ -448,4 +448,11 @@ Three properties are necessary for a race condition to exist:
 - First thing is to 'refactor' the existing blinkPA5(): what's wrong?
   Magic numbers: impossible to reuse or even understand this code
   without the comments.  I'll write code that configures GPIO ports.
+
+*** introduce sempahore: display now 'hands off' control to pa5
+
+- ref manual for freertos §4.x covers semaphore creation and use
+  - =xSemaphoreCreateBinary()=, §4.2
+  - =xSemaphoreGive()=, §4.13
+  - =xSemaphoreTake()=, §4.16
 * end sentinal
