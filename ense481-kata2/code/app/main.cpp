@@ -116,12 +116,16 @@ void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
 
 
 ////////////////////////////////////////////////////////////////
-// Task display() waits for any keypress, prints the key value
-// then hands-off control to task blinkGrn().  I want the display() (yellow-blinking task
-// to finish its work *before* the blinkGrn task runs.  A semaphore is
-// used to enforce this.  The display() task's period is 1000 ms, while
-// the blinkGrn task's period is 200 ms.  When the yellow LED turns off, display() does a 'give' on the semaphore, releasing the blinkGrn task.  blinkGrn then runs to completion, then issues a 'take' at the top of the loop, causing it block until display issues another 'give'
-//
+// Task display() waits for any keypress, prints the key value then
+// hands-off control to task blinkGrn().  I want the display()
+// (yellow-blinking task to finish its work *before* the blinkGrn task
+// runs.  A semaphore is used to enforce this.  The display() task's
+// period is 1000 ms, while the blinkGrn task's period is 200 ms.
+// When the yellow LED turns off, display() does a 'give' on the
+// semaphore, releasing the blinkGrn task.  blinkGrn then runs to
+// completion, then issues a 'take' at the top of the loop, causing it
+// block until display issues another 'give'
+
 //  blnkGrn....................--__................--__.......... etc
 //  display__________----------__________----------__________----  etc
 

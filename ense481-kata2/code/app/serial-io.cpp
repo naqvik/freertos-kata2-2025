@@ -24,6 +24,7 @@ extern "C" int stdin_getchar(void) {
     // while the read data register is empty, spin
     while ((USART2->SR & 1u<<5)==0) {
     }
+    // FIXME: in case of error, this function should return -1
     return (char)USART2->DR;
 }
 
