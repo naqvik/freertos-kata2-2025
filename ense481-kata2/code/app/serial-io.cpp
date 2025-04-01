@@ -1,18 +1,10 @@
 // -*- c++ -*-
-/**
-   Adapted from M. Samek's Embedded Systems Progamming video course,
-   lesson 13-15 Startup Code, 16-18 Interrupts.
- */
 
-#include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>     // for abort() used by __aeabi_assert()
 #include <stm32f10x.h>
 
 // prototypes
 #include "serial-io.h"
-static void sendByte (char c);
-static char getByte (void);
 
 extern "C" int stdout_putchar(int c)
 {
@@ -32,8 +24,6 @@ extern "C" int stdout_putchar(int c)
 
     This is the only public function defined here, and the only one
     present in the associated header file serial-io.h.
-
-    Note: this implementation assumes the use of Keil's Microlib
  */
 void openUsart2(void)
 {

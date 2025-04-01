@@ -125,7 +125,6 @@ void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
 //  Grn....................--__................--__.......... etc
 //  PA8__________----------__________----------__________----  etc
 
-// Blinks LD2 on the nucleo board
 void blinkGrn(void * blah) {
     // turn on clock for GPIOA
     RCC->APB2ENR |= 1u<<2;
@@ -147,8 +146,8 @@ void display(void * blah) {
     RCC->APB2ENR |= 1u<<2;
 
     // configure PA8 and PA9 to be output, push-pull, 50MHz
-    gpio_config(GPIOA, Pin8, 0b0011u);
-    gpio_config(GPIOA, Pin9, 0b0011u);
+    gpio_config(GPIOA, Pin8, 0b0011u);  // Yellow
+    gpio_config(GPIOA, Pin9, 0b0011u);  // Green
 
     while (1) {
         gpio_on_off(GPIOA, Pin8, 1);
@@ -157,7 +156,6 @@ void display(void * blah) {
         gpio_on_off(GPIOA, Pin8, 0);
         xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkGrn task
         vTaskDelay(500);
-
     }
 }
 
