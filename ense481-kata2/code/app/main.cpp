@@ -16,26 +16,15 @@
 */
 #include <stdint.h>
 
+// Do this if you're using C
 // typedef enum pin_tag {
-//     Pin0, Pin1,
-//     Pin2, Pin3,
-//     Pin4, Pin5,
-//     Pin6, Pin7,
-//     Pin8, Pin9,
-//     Pin10, Pin11,
-//     Pin12, Pin13,
-//     Pin14, Pin15,
+//     Pin0, Pin1, Pin2, Pin3, Pin4, Pin5, Pin6, Pin7,
+//     Pin8, Pin9, Pin10, Pin11, Pin12, Pin13, Pin14, Pin15,
 // } Pin;
 
 enum Pin {
-    Pin0, Pin1,
-    Pin2, Pin3,
-    Pin4, Pin5,
-    Pin6, Pin7,
-    Pin8, Pin9,
-    Pin10, Pin11,
-    Pin12, Pin13,
-    Pin14, Pin15,
+    Pin0, Pin1, Pin2, Pin3, Pin4, Pin5, Pin6, Pin7,
+    Pin8, Pin9, Pin10, Pin11, Pin12, Pin13, Pin14, Pin15,
 };
 
 // global objects
