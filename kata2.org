@@ -533,4 +533,124 @@ Three properties are necessary for a race condition to exist:
     base->BSRR |= 1u << pin;
     #+end_src
 
+** lect22: add serial I/O
+There are a number of ways to do this in Keil (and also in any
+environment).  Since I'm using Keil at this time, I'll try the methods
+available in that environment.  This is documented in the arm software
+[[https://arm-software.github.io/CMSIS-Compiler/latest/rt_io.html][github]] (v2.1.0 is the latest).
+
+*** The method, and why it did not work in today's class
+One easy way is to use the ``Manage Run-Time Environment''
+configuration interface and choose the =Compiler= software component.
+Fully expanded, this shows the following hierarchy.
+#+begin_example
+Compiler
+  + I/O
+    + File
+    + STDERR
+      + Breakpoint
+      + ITM
+      + User
+    + STDIN
+      + Breakpoint
+      + ITM
+      + User
+    + STDOUT
+      + Breakpoint
+      + ITM
+      + User
+    + TTY
+      + Breakpoint
+      + ITM
+      + User
+#+end_example
+
+For now I chose only STDOUT.  In the lecture I made an error: I did
+not fully expand the options under STDOUT and did not carefully read
+this, so I left it in default =Breakpoint= mode.  This defines 2
+compile-time symbols:
+#+begin_example
+RTE_Compiler_IO_STDOUT
+RTE_Compiler_IO_STDOUT_BKPT
+#+end_example
+and in the file =retarget_io.c=, that enables the function
+#+begin_src c++
+static int stdout_putchar(int ch) {
+    __asm("BKPT 0");
+    return ch;
+}
+#+end_src
+This explains why my =stdout_putchar()= implementation was not used.
+
+I should have selected =User=.  That defines these symbols
+#+begin_example
+RTE_Compiler_IO_STDOUT
+RTE_Compiler_IO_STDOUT_User
+#+end_example
+which instead enables this line in =retarget_io.c=:
+#+begin_src c++
+extern int stdout_putchar(int c);
+#+end_src
+then a user can implement this function as they wish.
+
+Where are these compile-time constants defined?  Why, under the
+project directory =RTE=, in =RTE_Components.h=.
+#+begin_example
+RTE/
+├── Device
+│   └── STM32F103RB
+│       ├── RTE_Device.h
+│       ├── startup_stm32f10x_md.s
+│       └── system_stm32f10x.c
+└── _Target_1
+    └── RTE_Components.h
+#+end_example
+
+*** Implementing the 'stdout' function
+The simplest way is to put this stub function, somewhere in my code:
+#+begin_src c++
+int stdout_putchar(int c) {
+    return (c);
+}
+#+end_src
+I put it, for now, in =main.cpp=, the universal catchall for all new
+features.
+
+This compiles fine but fails to link.  The reason is this: a function
+declared in a C++ file is compiled with the C++ compiler, of course,
+and therefore uses C++ typesafe linkage.  However this function is to
+be called from a C module (in =retarget_io.c=) so we need to force "C"
+linkage.
+#+begin_src c++
+extern "C" int stdout_putchar(int c) {
+    return (c);
+}
+#+end_src
+This now compiles, links, and runs.  Placing a breakpoint on the
+function clearly shows hexadecimal characters 53, 74, 61, 72, 74,
+etc., passed via R0 to the function. ('S', 't', 'a', 'r', 't', etc).
+
+*** Putting the stdout function in a better place
+The best place for this function is in =serial-io.cpp=.
+
+#+begin_src c++
+extern "C" int stdout_putchar(int c)
+{
+    // if (c == '\n') {  // insert CR before each NL
+    //     while ((USART2->SR & 1u<<7)==0) {  // spin while TDR is occupied
+    //     }
+    //     USART2->DR = '\r';
+    // }
+
+    while ((USART2->SR & 1u<<7)==0) {  // spin while TDR is occupied
+    }
+    USART2->DR = c;
+    return c;
+}
+#+end_src
+
+Notice that I've commented out some ``character stuffing'' code.  If
+desired, and if one is /certain/ that the serial stream will never
+carry binary data but only ASCII, then this removes the need to
+provide =\r\n= for every newline.
 * end sentinal

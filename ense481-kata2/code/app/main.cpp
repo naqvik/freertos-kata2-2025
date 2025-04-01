@@ -2,6 +2,7 @@
 /** A simple app, to demonstrate freertos */
 
 /* standard includes */
+#include <stdio.h>
 
 /* freertos includes */
 #include "FreeRTOS.h"
@@ -10,6 +11,9 @@
 
 /* HW-specific includes (move to bsp area) */
 #include "stm32f10x.h"
+
+// project specific includes
+#include "serial-io.h"
 
 /**
    BLink the LED, using the lowest-level code possible
@@ -161,8 +165,13 @@ void display(void * blah) {
         // vTaskDelay(500);
     }
 }
+// extern "C" int stdout_putchar(int c) {
+//     return (c);
+// }
 
 int main() {
+    openUsart2();
+
     // initialize tasks
     BaseType_t retval = xTaskCreate(
         blinkGrn,    // task function
@@ -187,6 +196,8 @@ int main() {
     // initialize semaphore for sequencing
     gl_sequence_tasks_sem = xSemaphoreCreateBinary();
     configASSERT(gl_sequence_tasks_sem != nullptr);
+
+    printf("Starting tasks..\r\n");
 
     vTaskStartScheduler();
         
