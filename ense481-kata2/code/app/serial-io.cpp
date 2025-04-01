@@ -20,6 +20,13 @@ extern "C" int stdout_putchar(int c)
     return c;
 }
 
+extern "C" int stdin_getchar(void) {
+    // while the read data register is empty, spin
+    while ((USART2->SR & 1u<<5)==0) {
+    }
+    return (char)USART2->DR;
+}
+
 /** This function is to be called exactly once, generally at the start of main.
 
     This is the only public function defined here, and the only one

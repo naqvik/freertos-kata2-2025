@@ -3,6 +3,7 @@
 
 /* standard includes */
 #include <stdio.h>
+#include <ctype.h>              // for isprint()
 
 /* freertos includes */
 #include "FreeRTOS.h"
@@ -115,15 +116,14 @@ void gpio_on_off(GPIO_TypeDef * base, Pin p, bool on) {
 
 
 ////////////////////////////////////////////////////////////////
-// Allow hand-off from task display to blinkGrn.  I want the PA8 task
-// to finish its work *before* the Grn task runs.  This semaphore is
-// used to enforce this.  The PA8 task's period is 1000 ms, while
-// the Grn task's period is 200 ms.  When a falling edge occurs on
-// PA8, the Grn task is released, runs to completion, then
-// blocks until PA8 emits another falling edge.
+// Task display() waits for any keypress, prints the key value
+// then hands-off control to task blinkGrn().  I want the display() (yellow-blinking task
+// to finish its work *before* the blinkGrn task runs.  A semaphore is
+// used to enforce this.  The display() task's period is 1000 ms, while
+// the blinkGrn task's period is 200 ms.  When the yellow LED turns off, display() does a 'give' on the semaphore, releasing the blinkGrn task.  blinkGrn then runs to completion, then issues a 'take' at the top of the loop, causing it block until display issues another 'give'
 //
-//  Grn....................--__................--__.......... etc
-//  PA8__________----------__________----------__________----  etc
+//  blnkGrn....................--__................--__.......... etc
+//  display__________----------__________----------__________----  etc
 
 void blinkGrn(void * blah) {
     // turn on clock for GPIOA
@@ -150,6 +150,13 @@ void display(void * blah) {
     gpio_config(GPIOA, Pin9, 0b0011u);  // Green
 
     while (1) {
+        printf("Press any key to initiate one cycle: ");
+        int c = getchar();//fgetc(stdin);
+        if (isprint(c))
+            printf("\r\nKey pressed: %c (0x%02x)\r\n", c, c);
+        else
+            printf("\r\nNon-printable key pressed: 0x%02x\r\n", c);
+
         gpio_on_off(GPIOA, Pin8, 1);
         vTaskDelay(500);
 
@@ -166,7 +173,7 @@ int main() {
     BaseType_t retval = xTaskCreate(
         blinkGrn,    // task function
         "blink Grn", // task name
-        50,          // stack in words
+        60,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
         nullptr      // optional out: task handle
@@ -176,7 +183,7 @@ int main() {
     retval = xTaskCreate(
         display,    // task function
         "blink pa8", // task name
-        50,          // stack in words
+        60,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
         nullptr      // optional out: task handle
