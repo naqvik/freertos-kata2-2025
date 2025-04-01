@@ -173,7 +173,6 @@ void display(void * blah) {
 
 int main() {
     openUsart2();
-    printf(GIT_COMMIT "\r");
 
     // initialize tasks
     BaseType_t retval = xTaskCreate(
@@ -200,7 +199,7 @@ int main() {
     gl_sequence_tasks_sem = xSemaphoreCreateBinary();
     configASSERT(gl_sequence_tasks_sem != nullptr);
 
-    printf("Starting tasks..\r\n");
+    printf("\r\n" GIT_COMMIT "\n\rStarting tasks..\r\n");
 
     vTaskStartScheduler();
         

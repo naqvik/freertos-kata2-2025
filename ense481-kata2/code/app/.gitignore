@@ -1,0 +1,3 @@
+# Ignore version.h, so it can be freely updated w/o changing
+#   the commit hash
+/version.h
