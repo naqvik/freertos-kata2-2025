@@ -158,16 +158,8 @@ void display(void * blah) {
         xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkGrn task
         vTaskDelay(500);
 
-        // gpio_on_off(GPIOA, 9u, 1);
-        // vTaskDelay(500);
-
-        // gpio_on_off(GPIOA, 9u, 0);
-        // vTaskDelay(500);
     }
 }
-// extern "C" int stdout_putchar(int c) {
-//     return (c);
-// }
 
 int main() {
     openUsart2();
