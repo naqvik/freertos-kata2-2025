@@ -391,7 +391,7 @@
             <File>
               <FileName>serial-io.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>E:\ense481-kata2\code\app\serial-io.cpp</FilePath>
+              <FilePath>.\code\app\serial-io.cpp</FilePath>
             </File>
           </Files>
         </Group>
