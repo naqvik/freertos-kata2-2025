@@ -35,7 +35,8 @@ enum Pin {
 
 // global objects
 static SemaphoreHandle_t gl_sequence_tasks_sem = nullptr;
-
+static TaskHandle_t display_thandle;
+static TaskHandle_t blinkGrn_thandle;
 /*
 
    Full table of all possible CNF[1:0]MODE[1:0] patterns, and their
@@ -143,6 +144,8 @@ void blinkGrn(void * blah) {
         vTaskDelay(100);
 
         gpio_on_off(GPIOA, Pin9, 0);
+        UBaseType_t hw_mark = uxTaskGetStackHighWaterMark( NULL );
+        printf("blinkGrn: hw mark: %u\n", hw_mark);
         vTaskDelay(100);
     }
 }
@@ -167,6 +170,8 @@ void display(void * blah) {
 
         gpio_on_off(GPIOA, Pin8, 0);
         xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkGrn task
+        UBaseType_t hw_mark = uxTaskGetStackHighWaterMark( NULL );
+        printf("display: hw mark: %u\n", hw_mark);
         vTaskDelay(500);
     }
 }
@@ -178,20 +183,20 @@ int main() {
     BaseType_t retval = xTaskCreate(
         blinkGrn,    // task function
         "blink Grn", // task name
-        60,          // stack in words
+        70,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
-        nullptr      // optional out: task handle
+        &blinkGrn_thandle      // optional out: task handle
         );
     configASSERT(retval==pdPASS);
 
     retval = xTaskCreate(
         display,    // task function
         "blink pa8", // task name
-        60,          // stack in words
+        70,          // stack in words
         nullptr,     // optional parameter
         4,           // priority
-        nullptr      // optional out: task handle
+        &display_thandle      // optional out: task handle
         );
     configASSERT(retval==pdPASS);
 
