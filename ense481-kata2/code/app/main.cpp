@@ -158,9 +158,9 @@ void display(void * blah) {
         printf("Press any key to initiate one cycle: ");
         int c = getchar();//fgetc(stdin);
         if (isprint(c))
-            printf("\r\nKey pressed: %c (0x%02x)\r\n", c, c);
+            printf("\nKey pressed: %c (0x%02x)\n", c, c);
         else
-            printf("\r\nNon-printable key pressed: 0x%02x\r\n", c);
+            printf("\nNon-printable key pressed: 0x%02x\n", c);
 
         gpio_on_off(GPIOA, Pin8, 1);
         vTaskDelay(500);
@@ -199,7 +199,7 @@ int main() {
     gl_sequence_tasks_sem = xSemaphoreCreateBinary();
     configASSERT(gl_sequence_tasks_sem != nullptr);
 
-    printf("\r\n" GIT_COMMIT "\n\rStarting tasks..\r\n");
+    printf("\n" GIT_COMMIT "\nStarting tasks..\n");
 
     vTaskStartScheduler();
         

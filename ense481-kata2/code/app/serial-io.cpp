@@ -8,11 +8,11 @@
 
 extern "C" int stdout_putchar(int c)
 {
-    // if (c == '\n') {  // insert CR before each NL
-    //     while ((USART2->SR & 1u<<7)==0) {  // spin while TDR is occupied
-    //     }
-    //     USART2->DR = '\r';
-    // }
+    if (c == '\n') {  // insert CR before each NL
+        while ((USART2->SR & 1u<<7)==0) {  // spin while TDR is occupied
+        }
+        USART2->DR = '\r';
+    }
 
     while ((USART2->SR & 1u<<7)==0) {  // spin while TDR is occupied
     }
