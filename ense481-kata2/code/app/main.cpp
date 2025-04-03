@@ -145,7 +145,7 @@ void blinkGrn(void * blah) {
 
         gpio_on_off(GPIOA, Pin9, 0);
         UBaseType_t hw_mark = uxTaskGetStackHighWaterMark( NULL );
-        printf("blinkGrn: hw mark: %u\n", hw_mark);
+        printf("blinkGrn: hw mark: %lu\n", hw_mark);
         vTaskDelay(100);
     }
 }
@@ -171,7 +171,7 @@ void display(void * blah) {
         gpio_on_off(GPIOA, Pin8, 0);
         xSemaphoreGive(gl_sequence_tasks_sem);  // release blinkGrn task
         UBaseType_t hw_mark = uxTaskGetStackHighWaterMark( NULL );
-        printf("display: hw mark: %u\n", hw_mark);
+        printf("display: hw mark: %lu\n", hw_mark);
         vTaskDelay(500);
     }
 }
